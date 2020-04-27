@@ -35,6 +35,10 @@ from .helpers.markers import (
 )
 
 
+error_object = "<class 'ValueError'>"
+if sys.version_info.major == 2:
+    error_object = "<type 'exceptions.ValueError'>"
+
 async_await_not_supported = (
     sys.version_info < (3, 5) or tornado_version < (5, 0)
 )
@@ -263,14 +267,12 @@ class TestTracing(TestTornadoTracingBase):
 
         tags = spans[0].tags
         self.assertEqual(tags.get('error', None), True)
-
-        logs = spans[0].logs
-        self.assertEqual(len(logs), 1)
-        self.assertEqual(logs[0].key_values.get('event', None),
-                         'error')
-        self.assertTrue(isinstance(
-            logs[0].key_values.get('error.object', None), ValueError
-        ))
+        self.assertEqual(tags.get('sfx.error.kind', None), 'ValueError')
+        self.assertEqual(tags.get('sfx.error.object', None), error_object)
+        self.assertEqual(tags.get('sfx.error.message', None), 'invalid input')
+        assert 'sfx.error.stack' in tags
+        assert 'invalid input' in tags['sfx.error.stack']
+        assert len(tags['sfx.error.stack']) > 50
 
     @skip_generator_contextvars_on_tornado6
     def test_scope_coroutine(self):
