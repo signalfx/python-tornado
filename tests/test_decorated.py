@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 import tornado.gen
 import tornado.web
 import tornado.testing
@@ -30,6 +32,11 @@ from .helpers.markers import (
     skip_generator_contextvars_on_py34,
     skip_no_async_await,
 )
+
+
+error_object = "<class 'ValueError'>"
+if sys.version_info.major == 2:
+    error_object = "<type 'exceptions.ValueError'>"
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -156,14 +163,12 @@ class TestDecorated(tornado.testing.AsyncHTTPTestCase):
 
         tags = spans[0].tags
         self.assertEqual(tags.get('error', None), True)
-
-        logs = spans[0].logs
-        self.assertEqual(len(logs), 1)
-        self.assertEqual(logs[0].key_values.get('event', None),
-                         'error')
-        self.assertTrue(isinstance(
-            logs[0].key_values.get('error.object', None), ValueError
-        ))
+        self.assertEqual(tags.get('sfx.error.kind', None), 'ValueError')
+        self.assertEqual(tags.get('sfx.error.object', None), error_object)
+        self.assertEqual(tags.get('sfx.error.message', None), 'invalid value')
+        assert 'sfx.error.stack' in tags
+        assert 'invalid value' in tags['sfx.error.stack']
+        assert len(tags['sfx.error.stack']) > 50
 
     @skip_generator_contextvars_on_tornado6
     @skip_generator_contextvars_on_py34
@@ -198,14 +203,12 @@ class TestDecorated(tornado.testing.AsyncHTTPTestCase):
 
         tags = spans[0].tags
         self.assertEqual(tags.get('error', None), True)
-
-        logs = spans[0].logs
-        self.assertEqual(len(logs), 1)
-        self.assertEqual(logs[0].key_values.get('event', None),
-                         'error')
-        self.assertTrue(isinstance(
-            logs[0].key_values.get('error.object', None), ValueError
-        ))
+        self.assertEqual(tags.get('sfx.error.kind', None), 'ValueError')
+        self.assertEqual(tags.get('sfx.error.object', None), error_object)
+        self.assertEqual(tags.get('sfx.error.message', None), 'invalid value')
+        assert 'sfx.error.stack' in tags
+        assert 'invalid value' in tags['sfx.error.stack']
+        assert len(tags['sfx.error.stack']) > 50
 
     @skip_generator_contextvars_on_tornado6
     @skip_generator_contextvars_on_py34
@@ -271,14 +274,12 @@ class TestDecorated(tornado.testing.AsyncHTTPTestCase):
 
         tags = spans[0].tags
         self.assertEqual(tags.get('error', None), True)
-
-        logs = spans[0].logs
-        self.assertEqual(len(logs), 1)
-        self.assertEqual(logs[0].key_values.get('event', None),
-                         'error')
-        self.assertTrue(isinstance(
-            logs[0].key_values.get('error.object', None), ValueError
-        ))
+        self.assertEqual(tags.get('sfx.error.kind', None), 'ValueError')
+        self.assertEqual(tags.get('sfx.error.object', None), error_object)
+        self.assertEqual(tags.get('sfx.error.message', None), 'invalid value')
+        assert 'sfx.error.stack' in tags
+        assert 'invalid value' in tags['sfx.error.stack']
+        assert len(tags['sfx.error.stack']) > 50
 
     @skip_no_async_await
     def test_async_scope(self):
