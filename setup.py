@@ -2,13 +2,13 @@ from setuptools import setup
 
 version = open('VERSION').read()
 setup(
-    name='tornado_opentracing',
+    name='signalfx-instrumentation-tornado',
     version=version,
-    url='https://github.com/opentracing-contrib/python-tornado/',
-    download_url='https://github.com/opentracing-contrib/python-tornado/tarball/'+version,
+    url='https://github.com/signalfx/python-tornado/',
+    download_url='https://github.com/signalfx/python-tornado/tarball/'+version,
     license='Apache License 2.0',
-    author='Carlos Alberto Cortez',
-    author_email='calberto.cortez@gmail.com',
+    author='SignalFx, Inc.',
+    author_email='signalfx-oss@splunk.com',
     description='OpenTracing support for Tornado applications',
     long_description=open('README.rst').read(),
     packages=['tornado_opentracing'],
